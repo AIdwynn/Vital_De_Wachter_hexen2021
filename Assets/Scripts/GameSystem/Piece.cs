@@ -1,4 +1,4 @@
-﻿using DAE.ChessSystem;
+﻿using DAE.HexSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,57 +8,22 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-[Serializable]
-public class HighlightEvent : UnityEvent<bool>
+
+class Piece : MonoBehaviour, IPiece
 {
-
-}
-class PieceEventArgs : EventArgs
-{
-    public Piece Piece { get; }
-
-    public PieceEventArgs(Piece piece)
-       => Piece = piece;
-    
-}
-
-class Piece : MonoBehaviour, IPointerClickHandler, IPiece
-{
-    public event EventHandler<PieceEventArgs> Clicked;
-
-    [SerializeField]
-    private HighlightEvent OnHighlight;
     [SerializeField]
     private int _playerID;
     [SerializeField]
-    private PieceType _pieceType;
-    public bool Highlight 
-    {  
-        set
-        {
-            OnHighlight.Invoke(value);
-        }
-            
-    }  
+    private CardType _cardType;
 
     public int PlayerID => _playerID;
 
     public bool Moved { get; set; }
 
-    public PieceType PieceType => _pieceType;
+    public CardType Type => _cardType;
 
-  
-    public void OnPointerClick(PointerEventData eventData)
-        =>  OnClicked(this, new PieceEventArgs(this));
-
-    public override string ToString()
+    internal void MoveTo(Vector3 worldPosition)
     {
-        return gameObject.name;
-    }
-
-    protected virtual void OnClicked(object source, PieceEventArgs e)
-    {
-        var handle = Clicked;
-        handle?.Invoke(this, e);
+        this.gameObject.transform.position = worldPosition;
     }
 }

@@ -4,13 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAE.ChessSystem
+namespace DAE.HexSystem
 {
     public interface IPiece
     {
         int PlayerID { get; }
         bool Moved { get; set; }
-        PieceType PieceType { get; }
+
+        
+        CardType Type { get; }
 
     }
 }

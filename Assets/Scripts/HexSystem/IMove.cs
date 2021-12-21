@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAE.ChessSystem
+namespace DAE.HexSystem
 {
     interface IMove<TPiece>
         where TPiece : IPiece

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAE.ChessSystem
+namespace DAE.HexSystem
 {
     public class Position
     {
@@ -21,7 +21,7 @@ namespace DAE.ChessSystem
 
         protected virtual void OnDeactivated(EventArgs eventArgs)
         {
-            var handler = Activated;
+            var handler = Deactivated;
             handler?.Invoke(this, eventArgs);
         }
         protected virtual void OnActivate(EventArgs eventArgs)

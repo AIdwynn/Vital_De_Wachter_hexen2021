@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAE.ChessSystem
+namespace DAE.HexSystem
 {
-    public enum PieceType
+    public interface ICard
     {
-        Pawn, King, Queen, Knight, Rook, Bishop
+        CardType Type { get; }
     }
 }

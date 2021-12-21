@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAE.ChessSystem
+namespace DAE.HexSystem
 {
-    abstract class MoveBase<TPiece> : IMove<TPiece>
-        where TPiece : IPiece
+    abstract class MoveBase<TPiece, TCard> : IMove<TPiece>
+        where TPiece : IPiece where TCard : ICard
     {
         public virtual bool CanExecute(Board<Position, TPiece> board, Grid<Position> grid, TPiece piece)
         {

@@ -73,7 +73,7 @@ namespace DAE.BoardSystem
             if (TryGetPieceAt(toPosition, out _))
                 return false;
        
-            if (TryGetPositionOf(piece, out var fromPosition) || !_positionPiece.Remove(piece))
+            if (!TryGetPositionOf(piece, out var fromPosition) || !_positionPiece.Remove(piece))
                 return false;
        
             _positionPiece.Add(toPosition, piece);

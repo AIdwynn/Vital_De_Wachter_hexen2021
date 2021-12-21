@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a86ed80c6a3e474aa000bba339e8bc6, type: 3}
   m_Name: PositionHelper
   m_EditorClassIdentifier: 
-  _tileDimensions: 0
+  _tileDimensions: 1

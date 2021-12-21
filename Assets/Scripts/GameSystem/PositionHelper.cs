@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DAE.BoardSystem;
-using DAE.ChessSystem;
+using DAE.HexSystem;
 using UnityEngine;
 
 namespace DAE.GameSystem
@@ -14,12 +14,12 @@ namespace DAE.GameSystem
     {
        
         [SerializeField]
-        private int _tileDimensions;
+        private float _tileDimensions;
 
         public (int x, int y) ToGridPosition(Grid<Position> grid, Transform parent, Vector3 worldPosition)
         {
-            double qCalc = (Math.Sqrt(3) / 3 * worldPosition.x - 1 / 3 * worldPosition.y) / _tileDimensions;
-            double rCalc = (2 / 3 * worldPosition.y) / _tileDimensions;
+            double qCalc = (Math.Sqrt(3) / 3 * worldPosition.x - 1 / 3f * worldPosition.z) / (_tileDimensions);
+            double rCalc = (2 / 3f * worldPosition.z) / (_tileDimensions);
 
             int q = (int)Math.Round(qCalc);
             int r = (int)Math.Round(rCalc);
@@ -38,10 +38,10 @@ namespace DAE.GameSystem
             
         }
 
-        public Vector3 ToWorldPosition(Grid<Position> grid, Transform parent, int q, int r)
+        public Vector3 ToWorldPosition(Grid<Position> grid, Transform parent, (int q, int r) coordinate)
         {
-            var x = _tileDimensions * (Math.Sqrt(3f) * q + Math.Sqrt(3f) / 2f * r);
-            var y = _tileDimensions * (3f / 2f * r);
+            var x = _tileDimensions * (Math.Sqrt(3f) * coordinate.q + Math.Sqrt(3f) / 2f * coordinate.r);
+            var y = _tileDimensions * (3f / 2f * coordinate.r);
             var worldPosition = new Vector3((float)x, 0, y);
 
             //var scaledRelativePosition = new Vector3(q, 0, r);

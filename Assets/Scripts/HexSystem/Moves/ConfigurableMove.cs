@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAE.ChessSystem.Moves
+namespace DAE.HexSystem.Moves
 {
-    class ConfigurableMove<TPiece> : MoveBase<TPiece>
-        where TPiece : IPiece
+    class ConfigurableMove<TPiece, TCard> : MoveBase<TPiece>
+        where TPiece : IPiece where TCard : ICard
     {
         public delegate List<Position> PositionCollector(Board<Position, TPiece> board, Grid<Position> grid, TPiece piece);
 

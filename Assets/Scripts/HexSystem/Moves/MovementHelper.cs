@@ -5,7 +5,7 @@ using System.Linq;
 using DAE.BoardSystem;
 
 
-namespace DAE.ChessSystem.Moves
+namespace DAE.HexSystem.Moves
 {
 
 
@@ -24,24 +24,24 @@ namespace DAE.ChessSystem.Moves
             this._grid = grid;
         }
 
-        public MovementHelper<TPiece> Move(int xOffset, int yOffset, int numTiles = int.MaxValue, params Validator[] validators)
+        public MovementHelper<TPiece> Move(int qOffset, int rOffset, int numTiles = int.MaxValue, params Validator[] validators)
         {
-            if(_piece.PlayerID == 1) //black
-            {
-                xOffset *= -1;
-                yOffset *= -1;
-            }
+            //if(_piece.PlayerID == 1) //black
+            //{
+            //    xOffset *= -1;
+            //    yOffset *= -1;
+            //}
             if (!_board.TryGetPositionOf(_piece, out var position))
                 return this;
 
             if (!_grid.TryGetCoordinateOf(position, out var coordinate))
                 return this;
 
-            var nextXCoordinate = coordinate.q + xOffset;
-            var nextYCoordinate = coordinate.r + yOffset;
+            var nextQCoordinate = coordinate.q + qOffset;
+            var nextRCoordinate = coordinate.r + rOffset;
            
             var step = 0;
-            var hasNextPosition = _grid.TryGetPositionAt(nextXCoordinate, nextYCoordinate, out var nextPosition);
+            var hasNextPosition = _grid.TryGetPositionAt(nextQCoordinate, nextRCoordinate, out var nextPosition);
 
             while (hasNextPosition && step < numTiles)
             {
@@ -62,11 +62,11 @@ namespace DAE.ChessSystem.Moves
                     _validPositions.Add(nextPosition);
                     return this;
                 }
-                nextXCoordinate = coordinate.q + xOffset;
-                nextYCoordinate = coordinate.r + yOffset;
+                nextQCoordinate +=  qOffset;
+                nextRCoordinate +=  rOffset;
 
 
-                hasNextPosition = _grid.TryGetPositionAt(nextXCoordinate, nextYCoordinate, out nextPosition);
+                hasNextPosition = _grid.TryGetPositionAt(nextQCoordinate, nextRCoordinate, out nextPosition);
 
                 
                 step++;
@@ -79,30 +79,24 @@ namespace DAE.ChessSystem.Moves
         
 
         public delegate bool Validator(Board<Position, TPiece> board, Grid<Position> grid, TPiece piece, Position position);
-        internal MovementHelper<TPiece> North(int numTiles = int.MaxValue, params Validator[] validators)
+        internal MovementHelper<TPiece> TopRight(int numTiles = int.MaxValue, params Validator[] validators)
            => Move(0, 1, numTiles, validators);
 
-        internal MovementHelper<TPiece> NorthEast(int numTiles = int.MaxValue, params Validator[] validators)
-            => Move(1, 1, numTiles, validators);
-
-        internal MovementHelper<TPiece> East(int numTiles = int.MaxValue, params Validator[] validators)
+        internal MovementHelper<TPiece> Right(int numTiles = int.MaxValue, params Validator[] validators)
             => Move(1, 0, numTiles, validators);
 
 
-        internal MovementHelper<TPiece> SouthEast(int numTiles = int.MaxValue, params Validator[] validators)
+        internal MovementHelper<TPiece> BottemRight(int numTiles = int.MaxValue, params Validator[] validators)
             => Move(1, -1, numTiles, validators);
 
 
-        internal MovementHelper<TPiece> South(int numTiles = int.MaxValue, params Validator[] validators)
+        internal MovementHelper<TPiece> BottemLeft(int numTiles = int.MaxValue, params Validator[] validators)
             => Move(0, -1, numTiles, validators);
 
-        internal MovementHelper<TPiece> SouthWest(int numTiles = int.MaxValue, params Validator[] validators)
-            => Move(-1, -1, numTiles, validators);
+        internal MovementHelper<TPiece> Left(int numTiles = int.MaxValue, params Validator[] validators)
+            => Move(-1, 0, numTiles, validators);
 
-        internal MovementHelper<TPiece> West(int numTiles = int.MaxValue, params Validator[] validators)
-            => Move(-1, 0,  numTiles, validators);
-
-        internal MovementHelper<TPiece> NorthWest(int numTiles = int.MaxValue, params Validator[] validators)
+        internal MovementHelper<TPiece> TopLeft(int numTiles = int.MaxValue, params Validator[] validators)
             => Move(-1, 1, numTiles, validators);
 
 

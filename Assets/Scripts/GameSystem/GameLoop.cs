@@ -1,6 +1,5 @@
 ﻿using DAE.BoardSystem;
-using DAE.ChessSystem;
-using DAE.SelectionSystem;
+using DAE.HexSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,71 +13,104 @@ namespace DAE.GameSystem
 
     {
         [SerializeField]
+        public Piece Player;
+        [SerializeField]
         private PositionHelper _positionHelper;
+        [SerializeField]
+        private CardManager _cardManager;
 
         [SerializeField]
         private Transform _boardParent;
         [SerializeField]
         private int _boardRadius;
+        [SerializeField]
+        private int _startingHandSize;
 
         private Grid<Position> _grid;
         private Board<Position, Piece> _board;
-        private SelectionManager<Piece> _selectionManager;
-        private MoveManager<Piece> _moveManager;
+
+
+        private List<Card> _cards;
+        private Card _currentCard;
+
+        private ActionManager<Piece, Card> _actionManager;
+
         public void Start()
         {
+
             _grid = new Grid<Position>(_boardRadius, _boardRadius);
             _board = new Board<Position, Piece>();
-            _selectionManager = new SelectionManager<Piece>();
-            _moveManager = new MoveManager<Piece>(_board, _grid);
+            _actionManager = new ActionManager<Piece, Card>(_board, _grid);
+
+            _cards = new List<Card>();
 
             ConnectGrid(_grid);
-            ConnectPiece(_selectionManager, _board, _grid);
+            ConnectPiece( _board, _grid);
 
-            _selectionManager.Selected += (s, e) =>
+            _board.Moved += (s, e) =>
             {
-               
-                var positions = _moveManager.ValidPositionOf(e.SelectableItem);
-                foreach (var position in positions)
+                if(_grid.TryGetCoordinateOf(e.ToPosition, out var toCoordinate))
                 {
-                    position.Activate();
+                    var worldPosition = _positionHelper.ToWorldPosition(_grid, _boardParent, toCoordinate);
+
+                    e.piece.MoveTo(worldPosition);
                 }
             };
 
-            _selectionManager.Deselected += (s, e) =>
+            for (int i = 0; i < _startingHandSize; i++)
             {
-                var positions = _moveManager.ValidPositionOf(e.SelectableItem);
-                foreach (var position in positions)
-                {
-                    position.Deactivate();
-                }
-            };
+                CardDraw();
+            }
         }
 
-        public void DeselectAll()
+        private void Deselect(Hexes s)
         {
-            _selectionManager.DeselectAll();
+            var positions = _actionManager.ValidPositionOf(Player);
+            foreach (var position in positions)
+            {
+                position.Deactivate();
+            }
         }
 
-        private void ConnectPiece(SelectionManager<Piece> _selectionManager, Board<Position, Piece> board, Grid<Position> grid)
+        private void Select(Hexes hex)
+        {
+            var positions = _actionManager.ValidPositionOf(Player);
+            var partOf = false;
+            var (x, y) = _positionHelper.ToGridPosition(_grid, _boardParent, hex.transform.position);
+            if (_grid.TryGetPositionAt(x, y, out var hexPos))
+            {
+                foreach (var position in positions)
+                {
+                    if (position == hexPos)
+                        partOf = true;
+                }
+            }
+         
+            if (!partOf)
+            {
+               foreach (var position in positions)
+               {
+                   position.Activate();
+               }
+            }
+            else
+            {
+                hexPos.Activate();
+            }
+        }
+
+        private void ConnectPiece( Board<Position, Piece> board, Grid<Position> grid)
         {
             var pieces = FindObjectsOfType<Piece>();
             foreach (var piece in pieces)
             {
                 var (x, y) = _positionHelper.ToGridPosition(grid, _boardParent, piece.transform.position);
-                if(grid.TryGetPositionAt(x,y, out var position))
+                if (grid.TryGetPositionAt(x, y, out var position))
                 {
-
-
-                    piece.Clicked += (s, e) =>
-                    {
-                        _selectionManager.DeselectAll();
-                        _selectionManager.Toggle(s as Piece);
-                    };
                     board.Place(piece, position);
                 }
 
-               
+
             }
         }
 
@@ -90,13 +122,42 @@ namespace DAE.GameSystem
                 var position = new Position();
                 hex.Model = position;
 
-                var (x,y) = _positionHelper.ToGridPosition(grid, _boardParent, hex.transform.position);
-                              
+                var (x, y) = _positionHelper.ToGridPosition(grid, _boardParent, hex.transform.position);
+
                 grid.Register(x, y, position);
 
-                hex.gameObject.name = $"Tile ({x}, {y})";
+                var s = -x - y;
+                hex.gameObject.name = $"Hex ({x}, {y}, {s})";
+
+                hex.StartHover += (s, e) =>
+                {
+                    Select(hex);
+                };
+
+                hex.EndHover += (s, e) =>
+                {
+                    Deselect(hex);
+                };
             }
         }
+
+        private void CardDraw()
+        {
+            var card = _cardManager.CardDraw();
+            card.BeginDragging += (s, e) =>
+            {
+                _currentCard = e.Card;
+                Debug.Log($"you are dragging a {_currentCard.gameObject.name} card");
+            };
+            card.Drop += (s,e) =>
+            {
+                var validPos = _actionManager.ValidPositionOf(Player, _currentCard);
+                //if ()
+            };
+            _cards.Add(card);
+        }
+
+
 
     }
 }

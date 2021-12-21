@@ -24,11 +24,11 @@ namespace DAE.BoardSystem
             => _positions.TryGetKey(position, out coordinate);
         public void Register(int rank, int file, TPosition position)
         {
-            if (rank < 0 || rank >= Q)
-                throw new ArgumentException(nameof(rank));
+            if (rank <= -Q || rank >= Q)
+                throw new ArgumentException($"{nameof(rank)}: {rank}");
 
-            if (file < 0 || file >= R)
-                throw new ArgumentException(nameof(file));
+            if (file <= -R || file >= R)
+                throw new ArgumentException($"{nameof(file)}: {file}");
 
             _positions.Add((rank, file), position);
         }
