@@ -23,16 +23,6 @@ namespace DAE.GameSystem
 
             int q = (int)Math.Round(qCalc);
             int r = (int)Math.Round(rCalc);
-            //var relativePosition = worldPosition - parent.position;
-            //var scaledRelativePosition = relativePosition / _tileDimensions;
-
-            //var scaledBoardOffset = new Vector3(grid.Q / 2.0f, 0, grid.R / 2.0f);
-            //var scaledHaldTileOffset = new Vector3(0.5f, 0, 0.5f);
-            //scaledRelativePosition += scaledBoardOffset;
-            //scaledRelativePosition -= scaledHaldTileOffset;
-
-            //int q = (int)Math.Round(scaledRelativePosition.x);
-            //int r = (int)Math.Round(scaledRelativePosition.z);
 
             return (q, r);
             
@@ -43,17 +33,6 @@ namespace DAE.GameSystem
             var x = _tileDimensions * (Math.Sqrt(3f) * coordinate.q + Math.Sqrt(3f) / 2f * coordinate.r);
             var y = _tileDimensions * (3f / 2f * coordinate.r);
             var worldPosition = new Vector3((float)x, 0, y);
-
-            //var scaledRelativePosition = new Vector3(q, 0, r);
-
-            //var scaledHalfTileOffset = new Vector3(0.5f, 0, 0.5f);
-            //scaledRelativePosition -= scaledHalfTileOffset;
-
-            //var scaledBoardOffset = new Vector3(grid.Q / -2.0f, 0, grid.R / 2.0f);
-            //scaledRelativePosition += scaledBoardOffset;
-
-            //var relativePosition = scaledRelativePosition * _tileDimensions;
-            //var worldPosition = relativePosition + parent.position;
 
             return worldPosition;
         }

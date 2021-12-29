@@ -9,10 +9,13 @@ namespace DAE.BoardSystem
         public int R { get; }
         public int Q { get; }
 
+        public TPosition PlayerPos { get; set; }
+
         public Grid(int rows, int columns)
         {
             R = rows;
             Q = columns;
+
         }
 
         private BidirectionalDictionary<(int q, int r), TPosition> _positions = new BidirectionalDictionary<(int, int), TPosition>();

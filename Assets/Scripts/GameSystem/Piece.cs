@@ -11,19 +11,13 @@ using UnityEngine.EventSystems;
 
 class Piece : MonoBehaviour, IPiece
 {
-    [SerializeField]
-    private int _playerID;
-    [SerializeField]
-    private CardType _cardType;
-
-    public int PlayerID => _playerID;
-
-    public bool Moved { get; set; }
-
-    public CardType Type => _cardType;
-
     internal void MoveTo(Vector3 worldPosition)
     {
         this.gameObject.transform.position = worldPosition;
+    }
+
+    internal void Taken()
+    {
+        gameObject.SetActive(false);
     }
 }

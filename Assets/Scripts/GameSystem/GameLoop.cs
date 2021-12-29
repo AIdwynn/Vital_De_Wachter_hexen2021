@@ -25,6 +25,8 @@ namespace DAE.GameSystem
         private int _boardRadius;
         [SerializeField]
         private int _startingHandSize;
+        [SerializeField]
+        private int _deckSize;
 
         private Grid<Position> _grid;
         private Board<Position, Piece> _board;
@@ -32,20 +34,25 @@ namespace DAE.GameSystem
 
         private List<Card> _cards;
         private Card _currentCard;
+        
 
         private ActionManager<Piece, Card> _actionManager;
+        private bool _dragging = false;
 
         public void Start()
         {
 
             _grid = new Grid<Position>(_boardRadius, _boardRadius);
+
             _board = new Board<Position, Piece>();
             _actionManager = new ActionManager<Piece, Card>(_board, _grid);
 
-            _cards = new List<Card>();
-
             ConnectGrid(_grid);
             ConnectPiece( _board, _grid);
+
+            var gridPos = _positionHelper.ToGridPosition(_grid, _boardParent, Player.transform.position);
+            _grid.TryGetPositionAt(gridPos.x, gridPos.y, out var pos);
+            _grid.PlayerPos = pos;
 
             _board.Moved += (s, e) =>
             {
@@ -57,6 +64,13 @@ namespace DAE.GameSystem
                 }
             };
 
+            _board.Taken += (s, e) =>
+            {
+                e.piece.Taken();
+            };
+
+            GenerateDeck();
+
             for (int i = 0; i < _startingHandSize; i++)
             {
                 CardDraw();
@@ -65,7 +79,9 @@ namespace DAE.GameSystem
 
         private void Deselect(Hexes s)
         {
-            var positions = _actionManager.ValidPositionOf(Player);
+            var posGrid = _positionHelper.ToGridPosition(_grid, _boardParent, s.transform.position);
+            _grid.TryGetPositionAt(posGrid.x, posGrid.y, out var pos);
+            var positions = _actionManager.AllValidPositionOf(Player, _currentCard, pos);
             foreach (var position in positions)
             {
                 position.Deactivate();
@@ -74,11 +90,12 @@ namespace DAE.GameSystem
 
         private void Select(Hexes hex)
         {
-            var positions = _actionManager.ValidPositionOf(Player);
+            var positions = new List<Position>();
             var partOf = false;
             var (x, y) = _positionHelper.ToGridPosition(_grid, _boardParent, hex.transform.position);
             if (_grid.TryGetPositionAt(x, y, out var hexPos))
             {
+                positions = _actionManager.AllValidPositionOf(Player, _currentCard, hexPos);
                 foreach (var position in positions)
                 {
                     if (position == hexPos)
@@ -87,15 +104,19 @@ namespace DAE.GameSystem
             }
          
             if (!partOf)
-            {
-               foreach (var position in positions)
+            {               
+                foreach (var position in positions)
                {
                    position.Activate();
                }
             }
             else
             {
-                hexPos.Activate();
+                var actionPositions = _actionManager.ActionValidPositions(Player, _currentCard, hexPos);
+                foreach (var position in actionPositions)
+                {
+                    position.Activate();
+                }
             }
         }
 
@@ -131,30 +152,57 @@ namespace DAE.GameSystem
 
                 hex.StartHover += (s, e) =>
                 {
-                    Select(hex);
+                    if (_dragging && _currentCard != null)
+                    {
+                        Select(hex);
+                    }
+                        
                 };
 
                 hex.EndHover += (s, e) =>
                 {
+                    if (_currentCard != null)
+                        Deselect(hex);
+                };
+
+                hex.Drop += (s, e) =>
+                {
                     Deselect(hex);
+                    var currentViewPos = hex.transform.position;
+                    var currentGridPos = _positionHelper.ToGridPosition(_grid, _boardParent, currentViewPos);
+                    _grid.TryGetPositionAt(currentGridPos.x, currentGridPos.y, out var hoverPos);
+                    var validPos = _actionManager.AllValidPositionOf(Player, _currentCard, hoverPos);
+                    if (validPos.Contains(hoverPos))
+                    {
+                        _actionManager.PerformAction(Player, _currentCard, hoverPos);
+                        _currentCard.OnEndDrag(null);
+                        Destroy(_currentCard.gameObject);
+                        CardDraw();                      
+                    }              
                 };
             }
         }
 
         private void CardDraw()
         {
-            var card = _cardManager.CardDraw();
-            card.BeginDragging += (s, e) =>
+            _cardManager.CardDraw();
+        }
+        private void GenerateDeck()
+        {
+            var deck = _cardManager.GenerateDeck(_deckSize);
+            foreach (Card card in deck)
             {
-                _currentCard = e.Card;
-                Debug.Log($"you are dragging a {_currentCard.gameObject.name} card");
-            };
-            card.Drop += (s,e) =>
-            {
-                var validPos = _actionManager.ValidPositionOf(Player, _currentCard);
-                //if ()
-            };
-            _cards.Add(card);
+                card.BeginDragging += (s, e) =>
+                {
+                    _currentCard = e.Card;
+                    _dragging = true;
+                    Debug.Log($"you are dragging a {_currentCard.gameObject.name} card");
+                };
+                card.EndDragging += (s, e) =>
+                {
+                    _dragging = false;
+                };
+            }
         }
 
 

@@ -18,17 +18,12 @@ namespace DAE.HexSystem
         }
     }
 
-    public class DropEventArgs : EventArgs
+    public class EndDragEventArgs : EventArgs
     {
-        public Transform Transform { get; }
 
-        public DropEventArgs(Transform transform)
-        {
-            Transform = transform;
-        }
     }
 
-    public class Card: MonoBehaviour, IBeginDragHandler, IDragHandler, IDropHandler, IEndDragHandler, ICard
+    public class Card: MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, ICard
     {
         [SerializeField]
         private CardType cardType;
@@ -36,7 +31,8 @@ namespace DAE.HexSystem
         private GameObject _cardHand;
 
         public EventHandler<BeginDragEventArgs> BeginDragging;
-        public EventHandler<DropEventArgs> Drop;
+        public EventHandler<EndDragEventArgs> EndDragging;
+
 
         private GameObject dragIcon;
         private RectTransform dragPlane;
@@ -57,6 +53,7 @@ namespace DAE.HexSystem
 
             var image = dragIcon.AddComponent<Image>();
             image.color = GetComponent<Image>().color;
+            image.color = new Color(image.color.r, image.color.g, image.color.b, 0.5f);
 
             dragIcon.transform.localScale = this.gameObject.transform.localScale;
             dragIcon.transform.localScale = new Vector3(dragIcon.transform.localScale.x, dragIcon.transform.localScale.y/2.5f, dragIcon.transform.localScale.z);
@@ -79,19 +76,16 @@ namespace DAE.HexSystem
             SetPanelPosition(eventData);
         }     
 
-        public void OnDrop(PointerEventData eventData)
+        public void OnEndDrag(PointerEventData eventData)
         {
             if (dragIcon != null)
                 Destroy(dragIcon);
             canvas.GetComponent<CanvasGroup>().blocksRaycasts = true;
-            OnDropTrigger(new DropEventArgs(transform));
-        }
-
-        public void OnEndDrag(PointerEventData eventData)
-        {
-
             EnableView();
+            OnEndDragTrigger(new EndDragEventArgs());
         }
+
+
 
         private void SetDraggedPosition(PointerEventData eventData)
         {
@@ -123,12 +117,12 @@ namespace DAE.HexSystem
 
         }
 
-        private void DisableView()
+        public void DisableView()
         {
             gameObject.GetComponent<Image>().enabled = false;
         }
 
-        private void EnableView()
+        public void EnableView()
         {
             gameObject.GetComponent<Image>().enabled = true;
         }
@@ -138,11 +132,10 @@ namespace DAE.HexSystem
             var handler = BeginDragging;
             handler.Invoke(this, dragEventArgs);
         }
-
-        private void OnDropTrigger(DropEventArgs dropEventArgs)
+        private void OnEndDragTrigger(EndDragEventArgs endDragEventArgs)
         {
-            var handler = Drop;
-            handler.Invoke(this, dropEventArgs);
+            var handler = EndDragging;
+            handler.Invoke(this, endDragEventArgs);
         }
     }
 }

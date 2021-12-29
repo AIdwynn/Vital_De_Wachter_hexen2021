@@ -19,7 +19,17 @@ namespace DAE.GameSystem
         }
     }
 
-    public class Hexes : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class DropEventArgs : EventArgs
+    {
+        public Card Card { get; }
+
+        public DropEventArgs(Card card)
+        {
+            Card = card;
+        }
+    }
+
+    public class Hexes : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IDropHandler
     {
         [SerializeField]
         private UnityEvent _onActivate;
@@ -29,6 +39,7 @@ namespace DAE.GameSystem
         //private GameLoop loop;
         public EventHandler<HexEventArgs> StartHover;
         public EventHandler<HexEventArgs> EndHover;
+        public EventHandler<DropEventArgs> Drop;
 
 
         private Position _model;
@@ -78,7 +89,14 @@ namespace DAE.GameSystem
         void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
         => OnHoverStop(new HexEventArgs(Model));
 
-        
+        public void OnDrop(PointerEventData eventData)
+        => OnDropHandle(new DropEventArgs(eventData.pointerDrag.GetComponent<Card>()));
+
+        private void OnDropHandle(DropEventArgs eventArgs)
+        {
+            var handler = Drop;
+            handler?.Invoke(this, eventArgs);
+        }
     }
 }
 
