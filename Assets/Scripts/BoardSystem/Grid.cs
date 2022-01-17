@@ -20,6 +20,7 @@ namespace DAE.BoardSystem
 
         private BidirectionalDictionary<(int q, int r), TPosition> _positions = new BidirectionalDictionary<(int, int), TPosition>();
 
+
         public bool TryGetPositionAt(int q, int r, out TPosition position)
            => _positions.TryGetValue((q, r), out position);
 

@@ -19,13 +19,17 @@ namespace DAE.GameSystem
         private List<GameObject> _cardPrefabs;
         [SerializeField]
         private GameObject _cardHand;
+        [SerializeField]
+        private int _startingHandSize;
+        [SerializeField]
+        private int _deckSize;
 
         Random random = new Random();
 
-        public List<Card> GenerateDeck(int decksize)
+        public List<Card> GenerateDeck()
         {
             List<Card> deck = new List<Card>();
-            for (int i = 0; i < decksize; i++)
+            for (int i = 0; i < _deckSize; i++)
             {
                 int r = random.Next(0, _cardPrefabs.Count);
                 Card card = GenerateCard(r);
@@ -34,6 +38,14 @@ namespace DAE.GameSystem
             }
             return deck;
 
+        }
+
+        public void GenerateStartHand()
+        {
+            for (int i = 0; i < _startingHandSize; i++)
+            {
+                CardDraw();
+            }
         }
 
         public void CardDraw()
@@ -59,5 +71,16 @@ namespace DAE.GameSystem
             return null;
 
         }
+
+        public void RemoveCard(Card card)
+        {
+            Destroy(card.gameObject);
+        }
+
+        public void ShowHand()
+        => _cardHand.SetActive(true);
+
+        public void HideHand()
+        => _cardHand.SetActive(false);
     }
 }

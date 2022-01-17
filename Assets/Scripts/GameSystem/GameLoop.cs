@@ -1,5 +1,7 @@
 ﻿using DAE.BoardSystem;
+using DAE.GameSystem.States;
 using DAE.HexSystem;
+using DAE.StateSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,21 +25,23 @@ namespace DAE.GameSystem
         private Transform _boardParent;
         [SerializeField]
         private int _boardRadius;
+
         [SerializeField]
-        private int _startingHandSize;
+        private GameObject _startScreen;
         [SerializeField]
-        private int _deckSize;
+        private GameObject _endScreen;
+
 
         private Grid<Position> _grid;
         private Board<Position, Piece> _board;
 
 
-        private List<Card> _cards;
-        private Card _currentCard;
+        private List<Hexes> _hexes;
         
 
         private ActionManager<Piece, Card> _actionManager;
-        private bool _dragging = false;
+
+        private StateMachine<GameStateBase> _gameStateMachine;
 
         public void Start()
         {
@@ -46,6 +50,7 @@ namespace DAE.GameSystem
 
             _board = new Board<Position, Piece>();
             _actionManager = new ActionManager<Piece, Card>(_board, _grid);
+            _hexes = new List<Hexes>();
 
             ConnectGrid(_grid);
             ConnectPiece( _board, _grid);
@@ -69,55 +74,15 @@ namespace DAE.GameSystem
                 e.piece.Taken(e.IsPlayer);
             };
 
-            GenerateDeck();
 
-            for (int i = 0; i < _startingHandSize; i++)
-            {
-                CardDraw();
-            }
-        }
 
-        private void Deselect(Hexes s)
-        {
-            var posGrid = _positionHelper.ToGridPosition(_grid, _boardParent, s.transform.position);
-            _grid.TryGetPositionAt(posGrid.x, posGrid.y, out var pos);
-            var positions = _actionManager.AllValidPositionOf(Player, _currentCard, pos);
-            foreach (var position in positions)
-            {
-                position.Deactivate();
-            }
-        }
+            _gameStateMachine = new StateMachine<GameStateBase>();
+            _gameStateMachine.RegisterState(GameStates.GameStates.GamePlayState, new GamePlayState(_gameStateMachine, _actionManager, _board, _grid, 
+                _positionHelper, Player, _boardParent, _cardManager, _hexes));
+            _gameStateMachine.RegisterState(GameStates.GameStates.EndScreenState, new EndScreenState(_gameStateMachine, _endScreen));
+            _gameStateMachine.RegisterState(GameStates.GameStates.StartScreenState, new StartScreenState(_gameStateMachine, _startScreen));
 
-        private void Select(Hexes hex)
-        {
-            var positions = new List<Position>();
-            var partOf = false;
-            var (x, y) = _positionHelper.ToGridPosition(_grid, _boardParent, hex.transform.position);
-            if (_grid.TryGetPositionAt(x, y, out var hexPos))
-            {
-                positions = _actionManager.AllValidPositionOf(Player, _currentCard, hexPos);
-                foreach (var position in positions)
-                {
-                    if (position == hexPos)
-                        partOf = true;
-                }
-            }
-         
-            if (!partOf)
-            {               
-                foreach (var position in positions)
-               {
-                   position.Activate();
-               }
-            }
-            else
-            {
-                var actionPositions = _actionManager.ActionValidPositions(Player, _currentCard, hexPos);
-                foreach (var position in actionPositions)
-                {
-                    position.Activate();
-                }
-            }
+            _gameStateMachine.InitialState = GameStates.GameStates.StartScreenState;
         }
 
         private void ConnectPiece( Board<Position, Piece> board, Grid<Position> grid)
@@ -149,64 +114,27 @@ namespace DAE.GameSystem
 
                 var s = -x - y;
                 hex.gameObject.name = $"Hex ({x}, {y}, {s})";
+                _hexes.Add(hex);
 
-                hex.StartHover += (s, e) =>
-                {
-                    if (_dragging && _currentCard != null)
-                    {
-                        Select(hex);
-                    }
-                        
-                };
-
-                hex.EndHover += (s, e) =>
-                {
-                    if (_currentCard != null)
-                        Deselect(hex);
-                };
-
-                hex.Drop += (s, e) =>
-                {
-                    Deselect(hex);
-                    var currentViewPos = hex.transform.position;
-                    var currentGridPos = _positionHelper.ToGridPosition(_grid, _boardParent, currentViewPos);
-                    _grid.TryGetPositionAt(currentGridPos.x, currentGridPos.y, out var hoverPos);
-                    var validPos = _actionManager.AllValidPositionOf(Player, _currentCard, hoverPos);
-                    if (validPos.Contains(hoverPos))
-                    {
-                        _actionManager.PerformAction(Player, _currentCard, hoverPos);
-                        _currentCard.OnEndDrag(null);
-                        Destroy(_currentCard.gameObject);
-                        CardDraw();                      
-                    }              
-                };
             }
         }
 
-        private void CardDraw()
+        public void SwitchStates(int stateNumber)
         {
-            _cardManager.CardDraw();
-        }
-        private void GenerateDeck()
-        {
-            var deck = _cardManager.GenerateDeck(_deckSize);
-            foreach (Card card in deck)
+            switch (stateNumber)
             {
-                card.BeginDragging += (s, e) =>
-                {
-                    _currentCard = e.Card;
-                    _dragging = true;
-                    Debug.Log($"you are dragging a {_currentCard.gameObject.name} card");
-                };
-                card.EndDragging += (s, e) =>
-                {
-                    _dragging = false;
-                };
+               case 1:
+                    _gameStateMachine.MoveToSTate(GameStates.GameStates.StartScreenState);
+                    break;
+                case 2:
+                    _gameStateMachine.MoveToSTate(GameStates.GameStates.GamePlayState);
+                    break;
+                case 3:
+                    _gameStateMachine.MoveToSTate(GameStates.GameStates.EndScreenState);
+                    break;
+
             }
         }
-
-
-
     }
 }
 
