@@ -90,7 +90,12 @@ namespace DAE.HexSystem
 
             _actions.Add(CardType.Teleport, new ConfigurableAction<TPiece, TCard>(
                 (b, g, p, c, cp) => new ActionHelper<TPiece, TCard>(b, g, p, c, cp)
-                .Everywhere(_grid.Q)
+                .Everywhere(_grid.Q, false)
+                .Collect()));
+
+            _actions.Add(CardType.Bomb, new ConfigurableAction<TPiece, TCard>(
+                (b,g,p,c,cp) => new ActionHelper<TPiece, TCard>(b,g, p, c,cp)
+                .Everywhere(_grid.Q, true)
                 .Collect()));
 
         }
@@ -113,6 +118,11 @@ namespace DAE.HexSystem
             _validActions.Add(CardType.Slash, new Kill<TPiece, TCard>(
                 (b, g, p, c, cp) => new ActionHelper<TPiece, TCard>(b, g, p, c, cp)
                 .HalfCircle()
+                .Collect()));
+
+            _validActions.Add(CardType.Bomb, new Kill<TPiece, TCard>(
+                (b, g, p, c, cp) => new ActionHelper<TPiece, TCard>(b, g, p, c, cp)
+                .Area()
                 .Collect()));
             
             _validActions.Add(CardType.Push, new Push<TPiece, TCard>(

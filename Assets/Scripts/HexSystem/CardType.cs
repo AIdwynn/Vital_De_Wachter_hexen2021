@@ -8,6 +8,6 @@ namespace DAE.HexSystem
 {
     public enum CardType
     {
-        Laser, Slash, Push, Teleport
+        Laser, Slash, Push, Teleport, Bomb
     }
 }

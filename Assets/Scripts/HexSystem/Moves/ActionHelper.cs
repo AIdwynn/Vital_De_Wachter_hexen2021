@@ -29,7 +29,7 @@ namespace DAE.HexSystem.Moves
             this._card = card;
             this._currentPosition = currentPosition;
         }
-        public ActionHelper<TPiece, TCard> MoveEverywhere(int boardRadius)
+        public ActionHelper<TPiece, TCard> MoveEverywhere(int boardRadius, bool isOk)
         {
             var nextQCoordinate = -boardRadius;
             var nextRCoordinate = -boardRadius;
@@ -40,7 +40,7 @@ namespace DAE.HexSystem.Moves
                     if (_grid.TryGetPositionAt(nextQCoordinate, nextRCoordinate, out var position))
                     {
                         var hasPiece = _board.TryGetPieceAt(position, out var piece);
-                        if (!hasPiece)
+                        if (!hasPiece || isOk)
                             _validPositions.Add(position);
                     }
                     nextRCoordinate += 1;
@@ -169,6 +169,36 @@ namespace DAE.HexSystem.Moves
             return this;
         }
 
+        public ActionHelper<TPiece, TCard> Area(params Validator[] validators)
+        {
+            _validPositions.Add(_currentPosition);
+            if (!_grid.TryGetCoordinateOf(_currentPosition, out var coordinate))
+                return this;
+
+            var cor1 = (coordinate.q, coordinate.r + 1);
+            var cor2 = (coordinate.q + 1, coordinate.r);
+            var cor3 = (coordinate.q + 1, coordinate.r - 1);
+            var cor4 = (coordinate.q, coordinate.r - 1);
+            var cor5 = (coordinate.q - 1, coordinate.r);
+            var cor6 = (coordinate.q - 1, coordinate.r + 1);
+
+            if (_grid.TryGetPositionAt(cor1.Item1, cor1.Item2, out var position))
+                _validPositions.Add(position);
+            if (_grid.TryGetPositionAt(cor2.Item1, cor2.Item2, out position))
+                _validPositions.Add(position);
+            if (_grid.TryGetPositionAt(cor3.Item1, cor3.Item2, out position))
+                _validPositions.Add(position);
+            if (_grid.TryGetPositionAt(cor4.Item1, cor4.Item2, out position))
+                _validPositions.Add(position);
+            if (_grid.TryGetPositionAt(cor5.Item1, cor5.Item2, out position))
+                _validPositions.Add(position);
+            if (_grid.TryGetPositionAt(cor6.Item1, cor6.Item2, out position))
+                _validPositions.Add(position);
+
+
+            return this;
+        }
+
         public delegate bool Validator(Board<Position, TPiece> board, Grid<Position> grid, TPiece piece, Position position);
         internal ActionHelper<TPiece, TCard> TopRight(int numTiles = int.MaxValue, params Validator[] validators)
            => Move(0, 1, numTiles, validators);
@@ -206,8 +236,8 @@ namespace DAE.HexSystem.Moves
         internal ActionHelper<TPiece, TCard> TempTopLeft( int numTiles = int.MaxValue, params Validator[] validators)
             => ValidMove( -1, 1, numTiles, validators);
 
-        internal ActionHelper<TPiece, TCard> Everywhere(int boardRadius)
-            => MoveEverywhere(boardRadius);
+        internal ActionHelper<TPiece, TCard> Everywhere(int boardRadius, bool isOk)
+            => MoveEverywhere(boardRadius, isOk);
 
         internal List<Position> Collect()
         {
