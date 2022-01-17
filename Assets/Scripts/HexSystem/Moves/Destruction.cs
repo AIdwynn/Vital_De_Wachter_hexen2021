@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace DAE.HexSystem.Moves
 {
     internal class Destruction<TPiece, TCard> : BaseAction<TPiece, TCard>
@@ -17,7 +18,13 @@ namespace DAE.HexSystem.Moves
             foreach (var pos in _positionCollector(board, grid, piece, card, position))
             {
                 if (board.TryGetPieceAt(pos, out var toPiece))
-                    board.TryTake(toPiece);
+                {
+                    if (pos == grid.PlayerPos)
+                        board.TryTake(toPiece, true);
+                    else
+                        board.TryTake(toPiece, false);
+                }
+
                 pos.Destroy();
             }
 

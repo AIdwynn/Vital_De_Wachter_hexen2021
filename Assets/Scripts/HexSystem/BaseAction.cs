@@ -27,7 +27,7 @@ namespace DAE.HexSystem
         public virtual void Execute(Board<Position, TPiece> board, Grid<Position> grid, TPiece piece, TCard card, Position position)
         {
             if (board.TryGetPieceAt(position, out var toPiece))
-                board.TryTake(toPiece);
+                board.TryTake(toPiece, false);
             board.TryMove(piece, position);
         }
         public abstract List<Position> Positions(Board<Position, TPiece> board, Grid<Position> grid, TPiece piece, TCard card, Position currentPosition);

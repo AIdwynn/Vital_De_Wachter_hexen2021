@@ -16,8 +16,12 @@ class Piece : MonoBehaviour, IPiece
         this.gameObject.transform.position = worldPosition;
     }
 
-    internal void Taken()
+    internal void Taken( bool player)
     {
+        if (player)
+            Debug.Log("player tasks");
+        else
+            Debug.Log("Enemy killed");
         gameObject.SetActive(false);
     }
 }

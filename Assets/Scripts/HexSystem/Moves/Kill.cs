@@ -17,7 +17,7 @@ namespace DAE.HexSystem.Moves
             foreach (var pos in _positionCollector(board, grid, piece, card, position))
             {
                 if (board.TryGetPieceAt(pos, out var toPiece))
-                    board.TryTake(toPiece);
+                    board.TryTake(toPiece, false);
             }
            
         }

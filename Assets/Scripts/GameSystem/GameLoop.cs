@@ -66,7 +66,7 @@ namespace DAE.GameSystem
 
             _board.Taken += (s, e) =>
             {
-                e.piece.Taken();
+                e.piece.Taken(e.IsPlayer);
             };
 
             GenerateDeck();

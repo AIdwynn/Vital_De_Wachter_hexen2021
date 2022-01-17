@@ -20,7 +20,7 @@ namespace DAE.HexSystem.Moves
                 if (board.TryGetPieceAt(pos, out var toPiece))
                 {
                     if (!TryPush(toPiece,board, grid, pos))
-                        board.TryTake(toPiece);
+                        board.TryTake(toPiece, false);
                 }
 
             }

@@ -82,7 +82,7 @@ namespace DAE.BoardSystem
             return true;
         }
        
-        public bool TryTake(TPiece piece)
+        public bool TryTake(TPiece piece, bool isPlayer)
         {
             if(!TryGetPositionOf(piece, out var fromPosition))
             {
@@ -94,7 +94,7 @@ namespace DAE.BoardSystem
                 return false;
             }
 
-            OnTaken(new TakeEventArgs<TPosition, TPiece>(fromPosition, piece));
+            OnTaken(new TakeEventArgs<TPosition, TPiece>(fromPosition, piece, isPlayer));
             return true;
         }
        
