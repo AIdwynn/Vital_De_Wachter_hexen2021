@@ -120,7 +120,7 @@ namespace DAE.HexSystem
                 .HalfCircle()
                 .Collect()));
 
-            _validActions.Add(CardType.Bomb, new Kill<TPiece, TCard>(
+            _validActions.Add(CardType.Bomb, new Destruction<TPiece, TCard>(
                 (b, g, p, c, cp) => new ActionHelper<TPiece, TCard>(b, g, p, c, cp)
                 .Area()
                 .Collect()));

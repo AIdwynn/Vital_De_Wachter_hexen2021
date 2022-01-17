@@ -35,6 +35,8 @@ namespace DAE.GameSystem
         private UnityEvent _onActivate;
         [SerializeField]
         private UnityEvent _onDeactivate;
+        [SerializeField]
+        private UnityEvent _onDestroy;
         //[SerializeField]
         //private GameLoop loop;
         public EventHandler<HexEventArgs> StartHover;
@@ -55,6 +57,7 @@ namespace DAE.GameSystem
                 {
                     _model.Activated -= PositionActivated;
                     _model.Deactivated -= PositionDeactivated;
+                    _model.Destroyed -= PositionDestroyed;
                 }
                 _model = value;
 
@@ -62,6 +65,7 @@ namespace DAE.GameSystem
                 {
                     _model.Activated += PositionActivated;
                     _model.Deactivated += PositionDeactivated;
+                    _model.Destroyed += PositionDestroyed;
                 }
             }
         }
@@ -71,6 +75,9 @@ namespace DAE.GameSystem
 
         private void PositionActivated(object sender, EventArgs e)
         => _onActivate.Invoke();
+
+        private void PositionDestroyed(object sender, EventArgs e)
+            => _onDestroy.Invoke();
 
         public void OnHoverStart(HexEventArgs eventArgs)
         {

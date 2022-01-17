@@ -10,6 +10,7 @@ namespace DAE.HexSystem
     {
         public event EventHandler Deactivated;
         public event EventHandler Activated;
+        public event EventHandler Destroyed;
         public void Deactivate()
         {
             OnDeactivated(EventArgs.Empty);
@@ -17,6 +18,17 @@ namespace DAE.HexSystem
         public void Activate()
         {
             OnActivate(EventArgs.Empty);
+        }
+
+        public void Destroy()
+        {
+            OnDestroyed(EventArgs.Empty);
+        }
+
+        private void OnDestroyed(EventArgs eventArgs)
+        {
+            var handler = Destroyed;
+            handler?.Invoke(this, eventArgs);
         }
 
         protected virtual void OnDeactivated(EventArgs eventArgs)

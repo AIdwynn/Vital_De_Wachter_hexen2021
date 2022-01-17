@@ -18,7 +18,7 @@ namespace DAE.HexSystem.Moves
             {
                 if (board.TryGetPieceAt(pos, out var toPiece))
                     board.TryTake(toPiece);
-                
+                pos.Destroy();
             }
 
         }
