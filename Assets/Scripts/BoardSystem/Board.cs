@@ -39,10 +39,13 @@ namespace DAE.BoardSystem
         public TPosition FromPosition { get; }
         public TPiece piece { get; }
 
-        public TakeEventArgs(TPosition fromPosition, TPiece piece)
+        public bool IsPlayer { get; }
+
+        public TakeEventArgs(TPosition fromPosition, TPiece piece, bool isPlayer)
         {
             FromPosition = fromPosition;
             this.piece = piece;
+            this.IsPlayer = isPlayer;
         }
     }
 
