@@ -11,6 +11,7 @@ namespace DAE.GameSystem.States
         private GameObject _startScreen;
         public StartScreenState(StateMachine<GameStateBase> stateMachine, GameObject startScreen) : base(stateMachine)
         {
+            _startScreen = startScreen;
         }
         public override void OnEnter()
         {

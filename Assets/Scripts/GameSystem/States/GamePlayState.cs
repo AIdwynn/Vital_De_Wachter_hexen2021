@@ -37,14 +37,15 @@ namespace DAE.GameSystem.States
             _cardManager = cardManager;
             _hexes = hexes;
 
-            GenerateDeck();
-            _cardManager.GenerateStartHand();
+
         }
 
         public override void OnEnter()
         {
             _cardManager.ShowHand();
             AddListeners();
+            GenerateDeck();
+            _cardManager.GenerateStartHand();
 
         }
 
@@ -121,6 +122,11 @@ namespace DAE.GameSystem.States
 
         private void AddListeners()
         {
+            _player.Killed += (s, e) =>
+            {
+                StateMachine.MoveToSTate(GameStates.GameStates.EndScreenState);
+            };
+
             foreach (var hex in _hexes)
             {
                 hex.StartHover += (s, e) =>

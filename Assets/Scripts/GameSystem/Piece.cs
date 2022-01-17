@@ -8,9 +8,19 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
+public class PieceEventArgs : EventArgs
+{
+    bool isPlayer;
+
+    public PieceEventArgs(bool isPlayer)
+    {
+        this.isPlayer = isPlayer;
+    }
+}
 
 class Piece : MonoBehaviour, IPiece
 {
+    public EventHandler<PieceEventArgs> Killed;
     internal void MoveTo(Vector3 worldPosition)
     {
         this.gameObject.transform.position = worldPosition;
@@ -22,6 +32,13 @@ class Piece : MonoBehaviour, IPiece
             Debug.Log("player tasks");
         else
             Debug.Log("Enemy killed");
+        OnKilled(new PieceEventArgs(player));
         gameObject.SetActive(false);
+    }
+
+    private void OnKilled(PieceEventArgs eventArgs)
+    {
+        var handler = Killed;
+        handler?.Invoke(this, eventArgs);
     }
 }
